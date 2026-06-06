@@ -36,7 +36,7 @@ morph_vocab = MorphVocab()
 embedding = NewsEmbedding()
 morph_tagger = NewsMorphTagger(embedding)
 
-#---------------переделать------------------------------------------
+
 try:
     conn = psycopg2.connect(**db_params)
     cursor = conn.cursor()
@@ -82,10 +82,12 @@ try:
         for sentence in doc.sentences:
             for word in sentence.words:
                 
-                # ит_морф (подумать еще)
+                # ит_морф 
                 cursor.execute("""
                     INSERT INTO "Ит_морф" ("Ит_лемма", "Часть_речиИт")
                     VALUES (%s, %s)
+                    ON CONFLICT ON CONSTRAINT unique_lem-postag_it
+                    DO UPDATE SET "Ит_лемма" = EXCLUDED."Ит_лемма"
                     RETURNING "id_morf";
                 """, (word.lemma, word.pos))
                 #print(word.text, word.lemma, word.pos)
@@ -98,7 +100,7 @@ try:
                 """, (word.text, id_morf_it, id_text_it))
 # закончили заполнять
 
-# заполняем Слов_рус, Рус_морф (тоже подумать еще)
+# заполняем Слов_рус, Рус_морф
         print('Заполняем...')
         
         text_processed = re.sub(r'[^\w\s]', '', text_rus)
@@ -115,15 +117,18 @@ try:
             if dict_rus.get(pos_word_rus, False):
                 pos_word_rus = dict_rus[pos_word_rus]
             
+            # леммы, части речи
             cursor.execute("""
                 INSERT INTO "Рус_морф" ("Часть_речиРус", "Рус_лемма")
                 VALUES (%s, %s)
+                ON CONFLICT ON CONSTRAINT unique_lem-postag_rus
+                DO UPDATE SET "Рус_лемма" = EXCLUDED."Рус_лемма"
                 RETURNING "id_morf";
             """, (pos_word_rus, lem_word_rus))
             
             id_morf_rus = cursor.fetchone()[0]
             
-            
+            # словоформы
             cursor.execute("""
                 INSERT INTO "Слов_рус" ("idPh_ru", "Словоформа_рус", "Лемма_рус")
                 VALUES (%s, %s, %s);
