@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Параллельный корпус (русско-итальянский)</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .spacer { margin-top: 20px; }
+        .pair-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; }
+        .lang-ru { border-left: 4px solid #007bff; padding-left: 12px; margin-bottom: 12px; }
+        .lang-it { border-left: 4px solid #28a745; padding-left: 12px; }
+        .lang-label { font-size: 0.8rem; text-transform: uppercase; color: #6c757d; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">📖 Корпус пословиц</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_rus">Русские</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_it">Итальянские</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_both">Сравнительный</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mt-5">Русско-итальянский сравнительный корпус</h1>
+        <p class="lead">Поиск по лемме, словоформе или теме</p>
+
+        <form method="post" class="spacer">
+            <div class="form-row">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="word" placeholder="Слово / лемма" value="{{ request.form.get('word', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="search_type">
+                        <option value="wordform" {% if request.form.get('search_type') == 'wordform' %}selected{% elif not request.form.get('search_type') %}selected{% endif %}>Точная словоформа</option>
+                        <option value="lemma" {% if request.form.get('search_type') == 'lemma' %}selected{% endif %}>Лемма</option>
+						<option value="none" {% if request.form.get('search_type') == 'none' %}selected{% endif %}>Ничего</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="topic" placeholder="Тема (необязательно)" value="{{ request.form.get('topic', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-block">Искать</button>
+                </div>
+            </div>
+        </form>
+
+        {% if request.method == 'POST' %}
+            <hr>
+            <h3>Результаты поиска
+                <small class="text-muted">
+                    найдено пар: 
+                    {% if results.it_text is not none %}
+                        {{ results.it_text|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </small>
+            </h3>
+
+            {% if results.it_text is not none and results.it_text|length > 0 %}
+                {% for i in range(results.it_text|length) %}
+                <div class="pair-card">
+                    <div class="lang-it">
+                        <div class="lang-label">🇮🇹 Italiano</div>
+                        <div>{{ results.it_text[i] }}</div>
+                    </div>
+                    <div class="lang-ru">
+                        <div class="lang-label">🇷🇺 Русский</div>
+                        <div>{{ results.rus_text[i] }}</div>
+                    </div>
+                    {% if results.topic is defined and results.topic is not none and results.topic|length > i %}
+                    <div class="mt-2 text-muted small">📂 Тема: {{ results.topic[i] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning spacer">Ничего не найдено. Измените параметры поиска.</div>
+            {% endif %}
+        {% endif %}
+
+        <button class="btn btn-link spacer" onclick="window.location.href='/'">Вернуться на главную</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Русские пословицы — поиск</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .spacer { margin-top: 20px; }
+        .stats-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+        .stats-number {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">📖 Корпус пословиц</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_rus">Русские</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_it">Итальянские</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_both">Сравнительный</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mt-5">Русские пословицы</h1>
+        <p class="lead">Поиск по словоформе, лемме, части речи или теме</p>
+
+        <form method="post" class="spacer">
+            <div class="form-row">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="word" placeholder="Слово / лемма" value="{{ request.form.get('word', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="search_type">
+                        <option value="wordform" {% if request.form.get('search_type') == 'wordform' %}selected{% elif not request.form.get('search_type') %}selected{% endif %}>Точная словоформа</option>
+                        <option value="lemma" {% if request.form.get('search_type') == 'lemma' %}selected{% endif %}>Лемма</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="pos">
+                        <option value="">Любая часть речи</option>
+                        <option value="NOUN">Существительные (NOUN)</option>
+                        <option value="ADJ">Прилагательные (ADJ)</option>
+                        <option value="VERB">Глаголы (VERB)</option>
+                        <option value="ADV">Наречия (ADV)</option>
+                        <option value="PRON">Местоимения (PRON)</option>
+                        <option value="ADP">Предлоги (ADP)</option>
+                        <option value="CCONJ">Сочинительные союзы (CCONJ)</option>
+                        <option value="SCONJ">Подчинительные союзы (SCONJ)</option>
+                        <option value="NUM">Числительные (NUM)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-block">Искать</button>
+                </div>
+            </div>
+            <div class="form-row mt-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="topic" placeholder="Тема (необязательно)" value="{{ request.form.get('topic', '') }}">
+                </div>
+                <div class="col-md-8">
+                    <small class="form-text text-muted">Оставьте пустым, чтобы показать пословицы на любые темы</small>
+                </div>
+            </div>
+        </form>
+
+        {% if request.method == 'POST' %}
+            <hr>
+            <h3>Результаты поиска
+                <small class="text-muted">найдено {{ results.sentence|length if results.sentence else 0 }} пословиц</small>
+            </h3>
+
+            <!-- БЛОК СТАТИСТИКИ ПОДКОРПУСА (только для режимов лемма/словоформа) -->
+            {% if request.form.get('search_type') in ['lemma', 'wordform'] and results.instance is defined and results.instance|length > 0 %}
+            <div class="stats-card">
+                <div class="row">
+                    <div class="col-md-4">
+                        <span class="text-secondary">📊 Всего слов:</span><br>
+                        <span class="stats-number">
+                            {% if results.total_words and results.total_words|length > 0 %}
+                                {{ results.total_words[0][0] if results.total_words[0] is iterable else results.total_words[0] }}
+                            {% else %}0{% endif %}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-secondary">📈 Всего употреблений:</span><br>
+                        <span class="stats-number">
+                            {% if results.instance and results.instance|length > 0 %}
+                                {{ results.instance[0][0] if results.instance[0] is iterable else results.instance[0] }}
+                            {% else %}0{% endif %}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-secondary">📉 IPM:</span><br>
+                        <span class="stats-number">{{ results.ipm|default(0) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if results.sentence and results.sentence|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Пословица</th>
+                                {% if results.lemma and results.lemma|length > 0 %}
+                                    <th>Словоформа</th>
+                                {% endif %}
+                                {% if results.topic and results.topic|length > 0 %}
+                                    <th>Тема</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(results.sentence|length) %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    {% set sentence_item = results.sentence[i] %}
+                                    {% if sentence_item is string %}
+                                        {{ sentence_item }}
+                                    {% elif sentence_item is iterable and sentence_item is not string %}
+                                        {{ sentence_item[0] if sentence_item|length > 0 else '' }}
+                                    {% else %}
+                                        {{ sentence_item }}
+                                    {% endif %}
+                                </td>
+                                {% if results.lemma and results.lemma|length > 0 %}
+                                    <td>
+                                        {% set lemma_item = results.lemma[i] %}
+                                        {% if lemma_item is string %}
+                                            {{ lemma_item }}
+                                        {% elif lemma_item is iterable and lemma_item is not string %}
+                                            {{ lemma_item[0] if lemma_item|length > 0 else '' }}
+                                        {% else %}
+                                            {{ lemma_item }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                                {% if results.topic and results.topic|length > 0 %}
+                                    <td>
+                                        {% set topic_item = results.topic[i] %}
+                                        {% if topic_item is string %}
+                                            {{ topic_item }}
+                                        {% elif topic_item is iterable and topic_item is not string %}
+                                            {{ topic_item[0] if topic_item|length > 0 else '' }}
+                                        {% else %}
+                                            {{ topic_item }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-warning spacer">Ничего не найдено. Измените параметры поиска.</div>
+            {% endif %}
+        {% endif %}
+
+        <button class="btn btn-link spacer" onclick="window.location.href='/'">Вернуться на главную</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

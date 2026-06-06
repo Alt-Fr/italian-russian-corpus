@@ -1,0 +1,133 @@
+<<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Корпус пословиц | Главная</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .corpus-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .corpus-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .topic-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0 4px 8px 0;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .topic-badge:hover {
+            background-color: #dee2e6;
+            text-decoration: none;
+            color: #212529;
+        }
+        .topics-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">📖 Корпус пословиц</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="text-center mb-5">
+            <h1>Корпус русских и итальянских пословиц</h1>
+            <p class="lead">Выберите подкорпус или корпус для поиска</p>
+        </div>
+
+        <div class="row">
+            <!-- Русские пословицы -->
+            <div class="col-md-4 mb-4">
+                <div class="card corpus-card h-100 text-center" onclick="location.href='/search_rus'">
+                    <div class="card-body">
+                        <div class="card-icon">🇷🇺</div>
+                        <h3 class="card-title">Подкорпус русских пословиц</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Итальянские пословицы -->
+            <div class="col-md-4 mb-4">
+                <div class="card corpus-card h-100 text-center" onclick="location.href='/search_it'">
+                    <div class="card-body">
+                        <div class="card-icon">🇮🇹</div>
+                        <h3 class="card-title">Подкорпус итальянских пословиц</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Параллельный корпус -->
+            <div class="col-md-4 mb-4">
+                <div class="card corpus-card h-100 text-center" onclick="location.href='/search_both'">
+                    <div class="card-body">
+                        <div class="card-icon">🌍</div>
+                        <h3 class="card-title">Русско-итальянский сравнительный корпус</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- БЛОК ТЕМАТИК -->
+        <div class="topics-container">
+            <h5 class="mb-3">📌 Доступные тематики (можно использовать при поиске по теме)</h5>
+            <div>
+                {% set topics = [
+                    "беда", "безысходность", "богатство", "взаимопомощь", "внешность",
+                    "время", "дело", "деньги", "доверие", "дружба", "еда", "жадность",
+                    "здоровье", "любовь", "обобщение", "обучение", "польза", "порядок",
+                    "правда", "привычка", "причина", "прошлое", "результат", "речь",
+                    "риск", "родина", "старость", "судьба", "счастье", "тематика",
+                    "умеренность", "утрата", "характеристика"
+                ] %}
+                {% for topic in topics %}
+                    <span class="topic-badge">{{ topic }}</span>
+                {% endfor %}
+            </div>
+            <small class="text-muted">Вы можете ввести любую из этих тем в поле «Тема» на странице поиска.</small>
+        </div>
+
+        <div class="alert alert-secondary mt-4" role="alert">
+            💡 В каждом подкорпусе доступен расширенный поиск по <strong>слову/лемме, части речи</strong> и <strong>тематике</strong>. В сравнительном корпусе результаты выводятся парами.
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <span class="text-muted">Проект по корпусной лингвистике</span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
