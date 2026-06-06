@@ -1,29 +1,5 @@
-# Fix PyTorch DLL loading issue on Windows
-# You need to add this at the beginning, before importing torch and other conflicting modules
-
-# Testing
-#from PyQt6.QtWidgets import QApplication
-
-# Imports successfully
-
-import os
-import platform
-
-if platform.system() == "Windows":
-    import ctypes
-    from importlib.util import find_spec
-    try:
-        if (spec := find_spec("stanza")) and spec.origin and os.path.exists(
-            dll_path := os.path.join(os.path.dirname(spec.origin), "lib", "c10.dll")
-        ):
-            ctypes.CDLL(os.path.normpath(dll_path))
-    except Exception:
-        pass
-
-
 import re
 import stanza
-import torch
 import pandas as pd
 import subprocess
 import os
