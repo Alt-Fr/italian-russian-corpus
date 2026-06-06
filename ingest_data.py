@@ -86,7 +86,7 @@ try:
                 cursor.execute("""
                     INSERT INTO "Ит_морф" ("Ит_лемма", "Часть_речиИт")
                     VALUES (%s, %s)
-                    ON CONFLICT ON CONSTRAINT unique_lem-postag_it
+                    ON CONFLICT ON CONSTRAINT unique_lem_postag_it
                     DO UPDATE SET "Ит_лемма" = EXCLUDED."Ит_лемма"
                     RETURNING "id_morf";
                 """, (word.lemma, word.pos))
@@ -121,7 +121,7 @@ try:
             cursor.execute("""
                 INSERT INTO "Рус_морф" ("Часть_речиРус", "Рус_лемма")
                 VALUES (%s, %s)
-                ON CONFLICT ON CONSTRAINT unique_lem-postag_rus
+                ON CONFLICT ON CONSTRAINT unique_lem_postag_rus
                 DO UPDATE SET "Рус_лемма" = EXCLUDED."Рус_лемма"
                 RETURNING "id_morf";
             """, (pos_word_rus, lem_word_rus))
