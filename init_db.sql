@@ -161,3 +161,14 @@ ALTER TABLE "Тематика"
       ON DELETE NO ACTION
       ON UPDATE NO ACTION
 ;
+
+--ограничения уникальности пары для лемм
+ALTER TABLE "Рус_морф"
+  ADD CONSTRAINT unique_lem-postag_rus
+	UNIQUE ("Часть_речиРус", "Рус_лемма")
+;
+
+ALTER TABLE "Ит_морф"
+  ADD CONSTRAINT unique_lem-postag_rus
+	UNIQUE ("Часть_речиИт", "Ит_лемма")
+;
