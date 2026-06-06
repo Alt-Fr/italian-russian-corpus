@@ -169,6 +169,6 @@ ALTER TABLE "Рус_морф"
 ;
 
 ALTER TABLE "Ит_морф"
-  ADD CONSTRAINT unique_lem-postag_rus
+  ADD CONSTRAINT unique_lem-postag_it
 	UNIQUE ("Часть_речиИт", "Ит_лемма")
 ;
